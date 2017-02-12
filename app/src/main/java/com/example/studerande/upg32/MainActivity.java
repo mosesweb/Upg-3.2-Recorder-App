@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
@@ -18,7 +19,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,12 +34,38 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RECORDING_ACTIVE = 1;
     private static final int PERMISSION_REQUEST_CODE = 3;
+    private static final String PREFS_NAME = "MyPrefFile";
+
     private String last_filename = "";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+
+
+        String restoredAudioname = settings.getString("audio_file", null);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        TextView filenametextview = (TextView) findViewById(R.id.thetextView);
         Button recordbutton = (Button) findViewById(R.id.record_button);
+
+        if(restoredAudioname != null)
+        {
+            last_filename = settings.getString("audio_file", null);
+             filenametextview.setText("you have a previous recording.." + last_filename);
+        }
+
+        /* start of play prev sound*/
+
+        File sourceFile = new File(last_filename);
+        if (sourceFile.isFile()) {
+            audioPlayer(last_filename);
+        }
+        /* end of play prev sound*/
 
         recordbutton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -78,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Sound recoding intent success", Toast.LENGTH_SHORT).show();
             String thefilename = "";
 
-
             Bundle extras = data.getExtras();
             Uri uri = data.getData();
 
@@ -94,13 +123,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("recordapp", "file does not exist");
                 // return 0;
             } else {
+                // set storage
+
+                SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = settings.edit();
+
+                editor.putString("audio_file", last_filename);
+                editor.commit();
+
                 Log.e("recordapp", "File exist");
                 audioPlayer(filePath);
             }
         }
-
     }
-
 
     public void audioPlayer(String path) {
         //set up MediaPlayer
