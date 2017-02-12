@@ -38,13 +38,11 @@ public class MainActivity extends AppCompatActivity {
 
     private String last_filename = "";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
-
 
         String restoredAudioname = settings.getString("audio_file", null);
         super.onCreate(savedInstanceState);
@@ -60,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /* start of play prev sound*/
-
         File sourceFile = new File(last_filename);
         if (sourceFile.isFile()) {
             audioPlayer(last_filename);
@@ -115,7 +112,8 @@ public class MainActivity extends AppCompatActivity {
             last_filename = filePath;
             thefilename = filePath;
             Button record_button = (Button) findViewById(R.id.record_button);
-            record_button.setText(thefilename);
+            // record_button.setText(thefilename);
+            record_button.setText("RECORD NEW");
 
 
             File sourceFile = new File(filePath);
